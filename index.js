@@ -1,15 +1,17 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
 const crypto = require("crypto");
 
 const app = express();
-const port = 3000;
 const cors = require("cors");
+
 app.use(cors({
   origin:"*",
   methods:['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 }));
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const connectDB = require('./connectMongo');
 const User = require('./models/user');
