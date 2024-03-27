@@ -107,8 +107,8 @@ app.post("/todos/:userId", async(req, res) => {
       userId,
       title,
       category,
-      dueDate: moment(dueDate).format("YYYY-MM-DD")
-    })
+      dueDate: new Date(dueDate) // Store as Date object
+    });
 
     await newTodo.save();
 
@@ -187,21 +187,13 @@ app.get("/todos/completed/:date/:userId", async (req, res) => {
     const date = req.params.date;
     const user = req.params.userId;
 
-    // Get the timezone offset in minutes
-    const timezoneOffset = (new Date()).getTimezoneOffset();
-    // Convert the offset to milliseconds
-    const timezoneOffsetMs = timezoneOffset * 60 * 1000;
-    // Calculate the adjusted date range
-    const startOfDay = new Date(`${date}T00:00:00.000Z`).getTime() + timezoneOffsetMs;
-    const endOfDay = new Date(`${date}T23:59:59.999Z`).getTime() + timezoneOffsetMs;
+    const startOfDay = moment(date).startOf('day'); // Start of the selected date
+    const endOfDay = moment(date).endOf('day'); // End of the selected date
 
     const completedTodos = await Todo.find({
       userId: user,
       status: "completed",
-      createdAt: {
-        $gte: new Date(startOfDay),
-        $lt: new Date(endOfDay),
-      }
+      dueDate: { $gte: startOfDay, $lte: endOfDay } // Filter by dueDate
     }).exec();
 
     res.status(200).json({ completedTodos });
@@ -209,6 +201,7 @@ app.get("/todos/completed/:date/:userId", async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 });
+
 
 app.get("/todos/:userId/count", async (req, res) => {
   const userId = req.params.userId;

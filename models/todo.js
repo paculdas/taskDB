@@ -20,12 +20,12 @@ const todoSchema = new mongoose.Schema({
         required: true,
     },
     dueDate: {
-        type: String,
+        type: Date, // Store as Date object
         required: true,
     },
     createdAt: {
         type: Date,
-        default:Date.now
+        default: Date.now
     },
 });
 
