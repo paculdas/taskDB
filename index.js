@@ -43,6 +43,30 @@ app.get('/api/todos/:userId', async (req, res) => {
     }
 });
 
+app.post("/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.log("Email already registered");
+    }
+
+    const newUser = new User({
+      name,
+      email,
+      password,
+    });
+
+    await newUser.save();
+
+    res.status(202).json({ message: "User registered successfully" });
+  } catch (error) {
+    console.log("Error registering the user", error);
+    res.status(500).json({ message: "Registration failed" });
+  }
+});
+
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
