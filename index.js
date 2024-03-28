@@ -185,23 +185,16 @@ app.patch("/todos/:todoId/complete", async (req, res) => {
 app.get("/todos/completed/:date/:userId", async (req, res) => {
   try {
     const date = req.params.date;
-    const user = req.params.userId;
+    const userId = req.params.userId;
 
-    // Get the timezone offset in minutes
-    const timezoneOffset = (new Date()).getTimezoneOffset();
-    // Convert the offset to milliseconds
-    const timezoneOffsetMs = timezoneOffset * 60 * 1000;
-    // Calculate the adjusted date range
-    const startOfDay = new Date(`${date}T00:00:00.000Z`).getTime() + timezoneOffsetMs;
-    const endOfDay = new Date(`${date}T23:59:59.999Z`).getTime() + timezoneOffsetMs;
+    // Parse the date string into a Moment object
+    const selectedDate = moment(date).startOf('day');
 
+    // Find completed todos for the specified user and date
     const completedTodos = await Todo.find({
-      userId: user,
+      userId: userId,
       status: "completed",
-      createdAt: {
-        $gte: new Date(startOfDay),
-        $lt: new Date(endOfDay),
-      }
+      dueDate: selectedDate.format("YYYY-MM-DD"), // Compare dueDate directly
     }).exec();
 
     res.status(200).json({ completedTodos });
